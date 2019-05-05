@@ -71,12 +71,16 @@ function CreateString(c:char;l:integer):string;
 function EncryptString(s,token: string;force_length:integer=0): string;
 function DecryptString(s,token: string; trim_spaces: boolean = false): string;
 { ----------------------- KOD CZASU ----------------------------- }
-function TimeTruncate(Time: integer): integer;
+function SecToTime(aSec: longword): double;
+function SecToInteger(aSec: longword): integer;
+function MiliSecToTime(aMiliSec: longword): double;
+function MiliSecToInteger(aMiliSec: longword): longword;
+function TimeTruncate(Time: longword): longword;
 function TimeTruncate(Time: TDateTime): TDateTime;
-function TimeToInteger(Hour,Minutes,Second,Milisecond: word): integer;
-function TimeToInteger(Time: TDateTime): integer;
-function TimeToInteger: integer;
-function IntegerToTime(czas: integer; no_milisecond: boolean = false): TDateTime;
+function TimeToInteger(Hour,Minutes,Second,Milisecond: word): longword;
+function TimeToInteger(Time: TDateTime): longword;
+function TimeToInteger: longword;
+function IntegerToTime(czas: longword; no_milisecond: boolean = false): TDateTime;
 { ----------------------- KOD 01 ------------------------------- }
 function StringTruncate(s: string; max: integer):string;
 function GetFileSize(filename:string):int64;
@@ -656,7 +660,27 @@ end;
 
 { ----------------------- KOD CZASU ----------------------------- }
 
-function TimeTruncate(Time: integer): integer;
+function SecToTime(aSec: longword): double;
+begin
+  result:=aSec/SecsPerDay;
+end;
+
+function SecToInteger(aSec: longword): integer;
+begin
+  result:=TimeToInteger(aSec/SecsPerDay);
+end;
+
+function MiliSecToTime(aMiliSec: longword): double;
+begin
+  result:=aMiliSec/1000/SecsPerDay;
+end;
+
+function MiliSecToInteger(aMiliSec: longword): longword;
+begin
+  result:=TimeToInteger(aMiliSec/1000/SecsPerDay);
+end;
+
+function TimeTruncate(Time: longword): longword;
 begin
   result:=TimeToInteger(IntegerToTime(Time,true));
 end;
@@ -666,12 +690,12 @@ begin
   result:=IntegerToTime(TimeToInteger(Time),true);
 end;
 
-function TimeToInteger(Hour,Minutes,Second,Milisecond: word): integer;
+function TimeToInteger(Hour, Minutes, Second, Milisecond: word): longword;
 begin
   result:=(Hour*60*60*1000)+(Minutes*60*1000)+(Second*1000)+Milisecond;
 end;
 
-function TimeToInteger(Time: TDateTime): integer;
+function TimeToInteger(Time: TDateTime): longword;
 var
   godz,min,sec,milisec: word;
 begin
@@ -679,14 +703,14 @@ begin
   result:=(godz*60*60*1000)+(min*60*1000)+(sec*1000)+milisec;
 end;
 
-function TimeToInteger: integer;
+function TimeToInteger: longword;
 begin
   result:=TimeToInteger(time);
 end;
 
-function IntegerToTime(czas: integer; no_milisecond: boolean): TDateTime;
+function IntegerToTime(czas: longword; no_milisecond: boolean): TDateTime;
 var
-  c: integer;
+  c: longword;
   godz,min,sec,milisec: word;
 begin
   c:=czas;
@@ -700,7 +724,6 @@ begin
 end;
 
 { ----------------------- KOD 01 ------------------------------- }
-
 
 function StringTruncate(s: string; max: integer):string;
 begin

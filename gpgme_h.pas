@@ -358,7 +358,7 @@ var
   gpgme_data_new_from_cbs: Tgpgme_data_new_from_cbs;
   gpgme_key_release: Tgpgme_key_release;
 
-procedure LoadGpgme(LibraryName: String);
+function LoadGpgme(LibraryName: string): boolean;
 procedure CheckGpgmeError(Error: Tgpgme_error);
 
 implementation
@@ -410,12 +410,19 @@ begin
 end;
 
 
-procedure LoadGpgme(LibraryName: String);
+function LoadGpgme(LibraryName: string): boolean;
 var
   CurrentDir: String;
   LibDir: String;
 begin
+  result:=true;
   if LibHandle <> 0 then Exit;
+
+  if not FileExists(LibraryName) then
+  begin
+    result:=false;
+    exit;
+  end;
 
   CurrentDir := GetCurrentDir;
   LibDir := ExtractFileDir(LibraryName);
@@ -427,7 +434,11 @@ begin
     ChDir(CurrentDir);
   end;
 
-  if LibHandle = 0 then raise GpgmeError.Create('Could not load GPGME library ' + LibraryName);
+  if LibHandle = 0 then
+  begin
+    result:=false;
+    exit;
+  end;
   gpgme_check_version := InitFunction('gpgme_check_version');
   gpgme_set_locale := InitFunction('gpgme_set_locale');
   init_gpgme;
