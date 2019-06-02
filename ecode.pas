@@ -714,10 +714,10 @@ var
   godz,min,sec,milisec: word;
 begin
   c:=czas;
-  godz:=c div (60*60*1000);
-  c:=c-(godz*(60*60*1000));
-  min:=c div (60*1000);
-  c:=c-(min*(60*1000));
+  godz:=c div 3600000;
+  c:=c-(godz*3600000);
+  min:=c div 60000;
+  c:=c-(min*60000);
   sec:=c div 1000;
   if no_milisecond then milisec:=0 else milisec:=c-(sec*1000);
   result:=EncodeTime(godz,min,sec,milisec);
