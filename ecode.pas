@@ -97,8 +97,8 @@ function GetKeyFromStr(s:string):string;
 function GetIntKeyFromStr(s:string):integer;
 procedure SetDir(Directory:string);
 function MyDir(Filename:string='';AddingExeExtension:boolean=false):string;
-procedure SetConfDir(Filename:string;Global:boolean=false);
-procedure SetConfDir(Global:boolean=false);
+function SetConfDir(Filename: string; Global: boolean = false; OnlyReadOnly: boolean = false): string;
+function SetConfDir(Global: boolean = false; OnlyReadOnly: boolean = false): string;
 function MyConfDir(Filename:string;Global:boolean=false):string;
 function MyConfDir(Global:boolean=false):string;
 function ConvIso(s: string): string;
@@ -1009,7 +1009,8 @@ begin
   result:=s;
 end;
 
-procedure SetConfDir(Filename: string; Global: boolean);
+function SetConfDir(Filename: string; Global: boolean; OnlyReadOnly: boolean
+  ): string;
 var
   s: string;
   a: integer;
@@ -1020,13 +1021,17 @@ begin
     a:=length(s);
     if s[a]=_FF then delete(s,a,1);
   end else s:=cofnij_poziom(s)+_FF+Filename;
-  if not DirectoryExists(s) then mkdir(s);
-  if Global then ConfigGlobalDirectory:=s else ConfigLocalDirectory:=s;
+  if not OnlyReadOnly then
+  begin
+    if not DirectoryExists(s) then mkdir(s);
+    if Global then ConfigGlobalDirectory:=s else ConfigLocalDirectory:=s;
+  end;
+  result:=s;
 end;
 
-procedure SetConfDir(Global: boolean);
+function SetConfDir(Global: boolean; OnlyReadOnly: boolean): string;
 begin
-  SetConfDir('',Global);
+  result:=SetConfDir('',Global,OnlyReadOnly);
 end;
 
 function MyConfDir(Filename: string; Global: boolean): string;
