@@ -66,6 +66,10 @@ function IntToSys3(liczba:integer):string;
 function IntToBin(liczba:qword):string;
 function IntToSys(liczba:qword;baza:integer):string;
 function IntToSys3(liczba:qword):string;
+{ ----------------------- KOD OPERACJI BITOWYCH ------------------ }
+function BitIndexToNumber(aIndex: integer): integer;
+function GetBit(aLiczba,aBitIndex: integer): boolean;
+procedure SetBit(var aLiczba: integer;aBitIndex: integer;aFlaga: boolean = true);
 { ----------------------- KOD CRYPTO ----------------------------- }
 function CreateString(c:char;l:integer):string;
 function EncryptString(s,token: string;force_length:integer=0): string;
@@ -607,6 +611,48 @@ begin
     n:=n div 3;
   until n=0;
   result:=wynik;
+end;
+
+{ ----------------------- KOD OPERACJI BITOWYCH ------------------ }
+
+function BitIndexToNumber(aIndex: integer): integer;
+begin
+  case aIndex of
+     0: result:=1;
+     1: result:=2;
+     2: result:=4;
+     3: result:=8;
+     4: result:=16;
+     5: result:=32;
+     6: result:=64;
+     7: result:=128;
+     8: result:=256;
+     9: result:=512;
+    10: result:=1024;
+    11: result:=2048;
+    12: result:=4096;
+    13: result:=8192;
+    14: result:=16384;
+    15: result:=32768;
+    16: result:=65536;
+  end;
+end;
+
+function GetBit(aLiczba, aBitIndex: integer): boolean;
+var
+  a: integer;
+begin
+  a:=aLiczba and BitIndexToNumber(aBitIndex);
+  result:=not (a=0);
+end;
+
+procedure SetBit(var aLiczba: integer; aBitIndex: integer; aFlaga: boolean);
+begin
+  {aflaga: true - ustawienie bitu, false - wyłączenie bitu}
+  if aFlaga then
+    aLiczba:=aLiczba or BitIndexToNumber(aBitIndex)
+  else
+    aLiczba:=aLiczba xor BitIndexToNumber(aBitIndex);
 end;
 
 { ----------------------- KOD CRYPTO ----------------------------- }
