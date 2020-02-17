@@ -647,12 +647,16 @@ begin
 end;
 
 procedure SetBit(var aLiczba: integer; aBitIndex: integer; aFlaga: boolean);
+var
+  b: boolean;
 begin
   {aflaga: true - ustawienie bitu, false - wyłączenie bitu}
   if aFlaga then
     aLiczba:=aLiczba or BitIndexToNumber(aBitIndex)
-  else
-    aLiczba:=aLiczba xor BitIndexToNumber(aBitIndex);
+  else begin
+    b:=GetBit(aLiczba,aBitIndex);
+    if b then aLiczba:=aLiczba xor BitIndexToNumber(aBitIndex);
+  end;
 end;
 
 { ----------------------- KOD CRYPTO ----------------------------- }
