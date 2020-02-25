@@ -1245,11 +1245,16 @@ begin
   result:=pom;
 end;
 
+const encje_encoded: array [1..83] of string = ('À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'à', 'á', 'â', 'ã', 'ä', 'å', 'Æ', 'æ', 'ß', 'Ç', 'ç', 'È', 'É', 'Ê', 'Ë', 'è', 'é', 'ê', 'ë', 'ƒ', 'Ì', 'Í', 'Î', 'Ï', 'ì', 'í', 'î', 'ï', 'Ñ', 'ñ', 'Ò', 'Ó', 'Ô', 'Õ', 'Ö', 'ò', 'ó', 'ô', 'õ', 'ö', 'Ø', 'ø', 'Œ', 'œ', 'Š', 'š', 'Ù', 'Ú', 'Û', 'Ü', 'ù', 'ú', 'û', 'ü', 'µ', '×', 'Ý', 'Ÿ', 'ý', 'ÿ', '°', '†', '‡', '<', '>', '±', '«', '»', '¿', '¡', '·', '•', '™', '©', '®', '§', '¶');
+const encje_decoded: array [1..83] of string = ('&Agrave;', '&Aacute;', '&Acirc;', '&Atilde;', '&Auml;', '&Aring;', '&agrave;', '&aacute;', '&acirc;', '&atilde;', '&auml;', '&aring;', '&AElig;', '&aelig;', '&szlig;', '&Ccedil;', '&ccedil;', '&Egrave;', '&Eacute;', '&Ecirc;', '&Euml;', '&egrave;', '&eacute;', '&ecirc;', '&euml;', '&#131;', '&Igrave;', '&Iacute;', '&Icirc;', '&Iuml;', '&igrave;', '&iacute;', '&icirc;', '&iuml;', '&Ntilde;', '&ntilde;', '&Ograve;', '&Oacute;', '&Ocirc;', '&Otilde;', '&Ouml;', '&ograve;', '&oacute;', '&ocirc;', '&otilde;', '&ouml;', '&Oslash;', '&oslash;', '&#140;', '&#156;', '&#138;', '&#154;', '&Ugrave;', '&Uacute;', '&Ucirc;', '&Uuml;', '&ugrave;', '&uacute;', '&ucirc;', '&uuml;', '&#181;', '&#215;', '&Yacute;', '&#159;', '&yacute;', '&yuml;', '&#176;', '&#134;', '&#135;', '&lt;', '&gt;', '&#177;', '&#171;', '&#187;', '&#191;', '&#161;', '&#183;', '&#149;', '&#153;', '&copy;', '&reg;', '&#167;', '&#182;');
+
 function DecodeHTMLAmp(str: string): string;
 var
+  i: integer;
   s: string;
 begin
   s:=str;
+  s:=StringReplace(s,'&quot;','"',[rfReplaceAll]);
   s:=StringReplace(s,'&amp;amp;','&',[rfReplaceAll]);
   s:=StringReplace(s,'&amp;','&',[rfReplaceAll]);
   s:=StringReplace(s,'&#260;','Ą',[rfReplaceAll]);
