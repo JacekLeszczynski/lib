@@ -1277,6 +1277,7 @@ begin
   s:=StringReplace(s,'&#380;','ż',[rfReplaceAll]);
   s:=StringReplace(s,'&laquo;','«',[rfReplaceAll]);
   s:=StringReplace(s,'&raquo;','»',[rfReplaceAll]);
+  s:=StringReplace(s,'&#39;','''',[rfReplaceAll]);
   result:=s;
 end;
 
