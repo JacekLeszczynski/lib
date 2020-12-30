@@ -145,15 +145,15 @@ end;
 
 procedure TStopWatch.Reset;
 begin
-  Stop;
+  if FRunning then Stop;
   FElapsed := 0;
   FillChar(FStartPosition,SizeOf(FStartPosition),0);
 end;
 
 procedure TStopWatch.Start;
 begin
-  if FRunning then
-    exit;
+  if FRunning then exit;
+  Reset;
   FRunning := True;
 {$IFDEF WINDOWS}
   QueryPerformanceCounter(FStartPosition);
