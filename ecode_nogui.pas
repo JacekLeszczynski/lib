@@ -68,8 +68,6 @@ function IntToSys(liczba:qword;baza:integer):string;
 function IntToSys3(liczba:qword):string;
 { ----------------------- KOD CRYPTO ----------------------------- }
 function CreateString(c:char;l:integer):string;
-function EncryptString(s,token: string;force_length:integer=0): string;
-function DecryptString(s,token: string; trim_spaces: boolean = false): string;
 { ----------------------- KOD CZASU ----------------------------- }
 function SecToTime(aSec: longword): double;
 function SecToInteger(aSec: longword): integer;
@@ -84,8 +82,6 @@ function IntegerToTime(czas: longword; no_milisecond: boolean = false): TDateTim
 { ----------------------- KOD 01 ------------------------------- }
 function StringTruncate(s: string; max: integer):string;
 function GetFileSize(filename:string):int64;
-function MD5(const S: String): String;
-function MD5File(const Filename: String): String;
 function MyTempFileName(const APrefix: string): string;
 function TrimDepth(s:string;c:char=' '):string;
 function kropka(str:string;b:boolean=false;usuwac_spacje:boolean=false):string;
@@ -182,9 +178,9 @@ implementation
 
 uses
 {$IFDEF UNIX}
-  Unix, SysUtils, StrUtils, lconvencoding, DCPdes, DCPsha1, DCPmd5, Keyboard, gettext;
+  Unix, SysUtils, StrUtils, lconvencoding, Keyboard, gettext;
 {$ELSE}
-  Windows, SysUtils, StrUtils, lconvencoding, Winsock, DCPdes, DCPsha1, DCPmd5, Keyboard, gettext;
+  Windows, SysUtils, StrUtils, lconvencoding, Winsock, Keyboard, gettext;
 {$ENDIF}
 
 {$IFDEF UNIX}
@@ -621,43 +617,6 @@ begin
   result:=s;
 end;
 
-function EncryptString(s,token: string;force_length:integer=0): string;
-var
-  Des3: TDCP_3des;
-  ss,pom: string;
-  a: integer;
-begin
-  ss:=s;
-  a:=length(ss);
-  if (force_length>0) and (a<force_length) then ss:=ss+CreateString(' ',force_length-a);
-  Des3:=TDCP_3des.Create(nil);
-  try
-    Des3.InitStr(token,TDCP_sha1);
-    pom:=Des3.EncryptString(ss);
-    Des3.Burn;
-  finally
-    Des3.Free;
-  end;
-  result:=pom;
-end;
-
-function DecryptString(s,token: string; trim_spaces: boolean = false): string;
-var
-  Des3: TDCP_3des;
-  pom: string;
-begin
-  Des3:=TDCP_3des.Create(nil);
-  try
-    Des3.InitStr(token,TDCP_sha1);
-    pom:=Des3.DecryptString(s);
-    Des3.Burn;
-  finally
-    Des3.Free;
-  end;
-  if trim_spaces then result:=trim(pom) else result:=pom;
-end;
-
-
 { ----------------------- KOD CZASU ----------------------------- }
 
 function SecToTime(aSec: longword): double;
@@ -745,48 +704,6 @@ begin
   finally
     f.Free;
   end;
-end;
-
-function MD5(const S: String): String;
-var
-  i: Byte;
-  digest: array[0..15] of Byte;
-begin
-  with TDCP_md5.Create(nil) do
-  begin
-    Init;
-    UpdateStr(S);
-    Final(digest);
-    Free;
-  end;
-  Result := '';
-  for i := 0 to Length(digest)-1 do
-    Result := Result + IntToHex(digest[i], 2);
-  Result := LowerCase(Result);
-end;
-
-function MD5File(const Filename: String): String;
-var
-  i: Byte;
-  digest: array[0..15] of Byte;
-  stream: TFileStream;
-begin
-  with TDCP_md5.Create(nil) do
-  begin
-    try
-      stream:=TFileStream.Create(Filename,fmOpenRead);
-      Init;
-      UpdateStream(stream,stream.Size);
-      Final(digest);
-    finally
-      stream.Free;
-      Free;
-    end;
-  end;
-  Result := '';
-  for i := 0 to Length(digest)-1 do
-    Result := Result + IntToHex(digest[i], 2);
-  Result := LowerCase(Result);
 end;
 
 //Pobieram ścieżkę i nazwę pliku do uzycia tymczasowego
