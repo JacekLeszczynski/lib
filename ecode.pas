@@ -71,6 +71,7 @@ function BitIndexToNumber(aIndex: integer): integer;
 function GetBit(aLiczba,aBitIndex: integer): boolean;
 procedure SetBit(var aLiczba: integer;aBitIndex: integer;aFlaga: boolean = true);
 { ----------------------- KOD CRYPTO ----------------------------- }
+function CalcBuffer(aStrLen: longword; aBase: integer): longword;
 function CreateString(c:char;l:integer):string;
 function EncryptString(s,token: string;force_length:integer=0): string;
 function DecryptString(s,token: string; trim_spaces: boolean = false): string;
@@ -660,6 +661,16 @@ begin
 end;
 
 { ----------------------- KOD CRYPTO ----------------------------- }
+
+function CalcBuffer(aStrLen: longword; aBase: integer): longword;
+var
+  d,m: longword;
+begin
+  d:=aStrLen div aBase;
+  m:=aStrLen mod aBase;
+  if m>0 then inc(d);
+  result:=d*aBase;
+end;
 
 function CreateString(c:char;l:integer):string;
 var
