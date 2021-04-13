@@ -110,6 +110,7 @@ function ConvIso(s: string): string;
 function ConvOdczyt(s:string):string;
 function ConvZapis(s:string):string;
 function Latin2ToUtf8(s:string):string;
+function EncodeEncjon(aValue: string): string;
 function DecodeHTMLAmp(str:string):string;
 procedure TextTo2Text(s:string;max:integer;var s1,s2:string);
 procedure ExtractPFE(s:string; var s1,s2,s3:string);
@@ -1258,6 +1259,16 @@ end;
 
 const encje_encoded: array [1..83] of string = ('À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'à', 'á', 'â', 'ã', 'ä', 'å', 'Æ', 'æ', 'ß', 'Ç', 'ç', 'È', 'É', 'Ê', 'Ë', 'è', 'é', 'ê', 'ë', 'ƒ', 'Ì', 'Í', 'Î', 'Ï', 'ì', 'í', 'î', 'ï', 'Ñ', 'ñ', 'Ò', 'Ó', 'Ô', 'Õ', 'Ö', 'ò', 'ó', 'ô', 'õ', 'ö', 'Ø', 'ø', 'Œ', 'œ', 'Š', 'š', 'Ù', 'Ú', 'Û', 'Ü', 'ù', 'ú', 'û', 'ü', 'µ', '×', 'Ý', 'Ÿ', 'ý', 'ÿ', '°', '†', '‡', '<', '>', '±', '«', '»', '¿', '¡', '·', '•', '™', '©', '®', '§', '¶');
 const encje_decoded: array [1..83] of string = ('&Agrave;', '&Aacute;', '&Acirc;', '&Atilde;', '&Auml;', '&Aring;', '&agrave;', '&aacute;', '&acirc;', '&atilde;', '&auml;', '&aring;', '&AElig;', '&aelig;', '&szlig;', '&Ccedil;', '&ccedil;', '&Egrave;', '&Eacute;', '&Ecirc;', '&Euml;', '&egrave;', '&eacute;', '&ecirc;', '&euml;', '&#131;', '&Igrave;', '&Iacute;', '&Icirc;', '&Iuml;', '&igrave;', '&iacute;', '&icirc;', '&iuml;', '&Ntilde;', '&ntilde;', '&Ograve;', '&Oacute;', '&Ocirc;', '&Otilde;', '&Ouml;', '&ograve;', '&oacute;', '&ocirc;', '&otilde;', '&ouml;', '&Oslash;', '&oslash;', '&#140;', '&#156;', '&#138;', '&#154;', '&Ugrave;', '&Uacute;', '&Ucirc;', '&Uuml;', '&ugrave;', '&uacute;', '&ucirc;', '&uuml;', '&#181;', '&#215;', '&Yacute;', '&#159;', '&yacute;', '&yuml;', '&#176;', '&#134;', '&#135;', '&lt;', '&gt;', '&#177;', '&#171;', '&#187;', '&#191;', '&#161;', '&#183;', '&#149;', '&#153;', '&copy;', '&reg;', '&#167;', '&#182;');
+
+function EncodeEncjon(aValue: string): string;
+var
+  s: string;
+  i: integer;
+begin
+  s:=aValue;
+  for i:=1 to 83 do s:=StringReplace(s,encje_encoded[i],encje_decoded[i],[rfReplaceAll]);
+  result:=s;
+end;
 
 function DecodeHTMLAmp(str: string): string;
 var
