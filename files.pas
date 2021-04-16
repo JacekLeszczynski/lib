@@ -28,7 +28,14 @@ procedure DeleteLineSection(plik,sekcja,line:string);
 
 implementation
 uses
-  Crt, SysUtils, WinProcs;
+  Crt, SysUtils,
+  {$IFDEF UNIX}
+  FileUtil,
+  {$ELSE}
+  FileUtil,
+  //WinProcs,
+  {$ENDIF}
+  ecode;
 
 var
   tab: array [0..54] of char;
@@ -166,7 +173,7 @@ begin
     if ile<>0 then break;
     if (s.name='.') or (s.name='..') then continue;
     if (s.attr and faDirectory)=faDirectory then _deltree(k+'\'+s.name,true)
-    else RemoveFile(k+'\'+s.name);
+    else DeleteFile(k+'\'+s.name);
   end;
   {$i-}
   rmdir(k);
@@ -479,7 +486,7 @@ var
   sek: boolean;
 begin
   sek:=false;
-  temp:=TempFileName;
+  temp:=GetTempFileName;
   assign(f1,plik);
   assign(f2,temp);
   reset(f1);
@@ -495,7 +502,7 @@ begin
   close(f2);
   _iniini(temp);
   copyfilestr(temp,plik,false);
-  removefile(temp);
+  deletefile(temp);
 end;
 
 procedure DeleteLineSection(plik,sekcja,line:string);
@@ -506,7 +513,7 @@ var
   pom: byte;
 begin
   sek:=false;
-  temp:=TempFileName;
+  temp:=GetTempFileName;
   assign(f1,plik);
   assign(f2,temp);
   reset(f1);
@@ -527,7 +534,7 @@ begin
   closefile(f2);
   _iniini(temp);
   copyfilestr(temp,plik,false);
-  removefile(temp);
+  deletefile(temp);
 end;
 
 procedure Tabl_k;
