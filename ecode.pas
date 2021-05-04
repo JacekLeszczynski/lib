@@ -65,6 +65,7 @@ function IntToSys(liczba,baza:integer):string;
 function IntToSys3(liczba:integer):string;
 function IntToBin(liczba:qword):string;
 function IntToSys(liczba:qword;baza:integer):string;
+function IntToSys(liczba:longword;baza:integer):string;
 function IntToSys3(liczba:qword):string;
 { ----------------------- KOD OPERACJI BITOWYCH ------------------ }
 function BitIndexToNumber(aIndex: integer): integer;
@@ -91,6 +92,8 @@ function StringTruncate(s: string; max: integer):string;
 function GetFileSize(filename:string):int64;
 function MD5(const S: String): String;
 function MD5File(const Filename: String): String;
+function CrcString(const mystring: string) : longword;
+function CrcStringToHex(const mystring: string) : string;
 function MyTempFileName(const APrefix: string): string;
 function TrimDepth(s:string;c:char=' '):string;
 function kropka(str:string;b:boolean=false;usuwac_spacje:boolean=false):string;
@@ -188,9 +191,9 @@ implementation
 
 uses
 {$IFDEF UNIX}
-  Unix, SysUtils, StrUtils, lconvencoding, DCPdes, DCPsha1, DCPmd5, Keyboard, gettext;
+  Unix, SysUtils, StrUtils, lconvencoding, DCPdes, DCPsha1, DCPmd5, Keyboard, gettext, crc;
 {$ELSE}
-  Windows, SysUtils, StrUtils, lconvencoding, Winsock, DCPdes, DCPsha1, DCPmd5, Keyboard, gettext;
+  Windows, SysUtils, StrUtils, lconvencoding, Winsock, DCPdes, DCPsha1, DCPmd5, Keyboard, gettext, crc;
 {$ENDIF}
 
 {$IFDEF UNIX}
@@ -599,6 +602,21 @@ begin
   result:=wynik;
 end;
 
+function IntToSys(liczba: longword; baza: integer): string;
+var
+  wynik: string;
+  n,pom: longword;
+begin
+  wynik:='';
+  n:=liczba;
+  repeat
+    pom:=n mod baza;
+    if pom<10 then wynik:=IntToStr(pom)+wynik else wynik:=chr(pom+55)+wynik;
+    n:=n div baza;
+  until n=0;
+  result:=wynik;
+end;
+
 function IntToSys3(liczba: qword): string;
 var
   wynik: string;
@@ -849,6 +867,19 @@ begin
   for i := 0 to Length(digest)-1 do
     Result := Result + IntToHex(digest[i], 2);
   Result := LowerCase(Result);
+end;
+
+function CrcString(const mystring: string): longword;
+var
+  crcvalue: longword;
+begin
+  crcvalue := crc32(0,nil,0);
+  result := crc32(crcvalue, @mystring[1], length(mystring));
+end;
+
+function CrcStringToHex(const mystring: string): string;
+begin
+  result:=IntToSys(CrcString(mystring),16)
 end;
 
 //Pobieram ścieżkę i nazwę pliku do uzycia tymczasowego
