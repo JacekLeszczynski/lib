@@ -94,6 +94,9 @@ function MD5(const S: String): String;
 function MD5File(const Filename: String): String;
 function CrcString(const mystring: string) : longword;
 function CrcStringToHex(const mystring: string) : string;
+function CrcBlock(buf: Pbyte; len: cardinal) : longword;
+function CrcBlockToHex(buf: Pbyte; len: cardinal) : string;
+function CrcBlockToHex(buf: Pchar; len: cardinal) : string;
 function MyTempFileName(const APrefix: string): string;
 function TrimDepth(s:string;c:char=' '):string;
 function kropka(str:string;b:boolean=false;usuwac_spacje:boolean=false):string;
@@ -880,6 +883,24 @@ end;
 function CrcStringToHex(const mystring: string): string;
 begin
   result:=IntToSys(CrcString(mystring),16)
+end;
+
+function CrcBlock(buf: Pbyte; len: cardinal): longword;
+var
+  crcvalue: longword;
+begin
+  crcvalue := crc32(0,nil,0);
+  result := crc32(crcvalue, buf, len);
+end;
+
+function CrcBlockToHex(buf: Pbyte; len: cardinal): string;
+begin
+  result:=IntToSys(CrcBlock(buf,len),16)
+end;
+
+function CrcBlockToHex(buf: Pchar; len: cardinal): string;
+begin
+  result:=IntToSys(CrcBlock(pbyte(buf),len),16)
 end;
 
 //Pobieram ścieżkę i nazwę pliku do uzycia tymczasowego
