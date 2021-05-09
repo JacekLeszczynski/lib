@@ -97,6 +97,7 @@ function CrcStringToHex(const mystring: string) : string;
 function CrcBlock(buf: Pbyte; len: cardinal) : longword;
 function CrcBlockToHex(buf: Pbyte; len: cardinal) : string;
 function CrcBlockToHex(buf: Pchar; len: cardinal) : string;
+function CrcBlockToHex(const buf; len: cardinal) : string;
 function MyTempFileName(const APrefix: string): string;
 function TrimDepth(s:string;c:char=' '):string;
 function kropka(str:string;b:boolean=false;usuwac_spacje:boolean=false):string;
@@ -148,6 +149,7 @@ function NormalizeNaglowekAdresowy(imie,nazwisko,kod_pocztowy,miejscowosc,ulica,
 function NormalizeNaglowekSpecjalizacji(imie,nazwisko,specjalizacja,nr_prawa_zawodu:string):string;
 procedure StringToFile(s,filename:string);
 function DateTimeToDate(wartosc:TDateTime):TDate;
+function StrToDateTime(aStr: string): TDateTime;
 function GetPasswordInConsole(InputMask: char = '*'): string;
 function HexToDec(Str: string): Integer;
 function HexToStr(AHexText:string):string;
@@ -901,6 +903,11 @@ end;
 function CrcBlockToHex(buf: Pchar; len: cardinal): string;
 begin
   result:=IntToSys(CrcBlock(pbyte(buf),len),16)
+end;
+
+function CrcBlockToHex(const buf; len: cardinal): string;
+begin
+  result:=IntToSys(CrcBlock(pbyte(@buf),len),16)
 end;
 
 //Pobieram ścieżkę i nazwę pliku do uzycia tymczasowego
@@ -1749,6 +1756,23 @@ end;
 function DateTimeToDate(wartosc: TDateTime): TDate;
 begin
   result:=StrToDate(FormatDateTime('yyyy-mm-dd',wartosc),'y/m/d','-');
+end;
+
+//yyyy-mm-dd hh:nn:ss
+function StrToDateTime(aStr: string): TDateTime;
+var
+  rok,miesiac,dzien,hh,nn,ss: word;
+  dt,tt: TDateTime;
+begin
+  rok:=StrToInt(copy(aStr,1,4));
+  miesiac:=StrToInt(copy(aStr,6,2));
+  dzien:=StrToInt(copy(aStr,9,2));
+  hh:=StrToInt(copy(aStr,12,2));
+  nn:=StrToInt(copy(aStr,15,2));
+  ss:=StrToInt(copy(aStr,18,2));
+  dt:=EncodeDate(rok,miesiac,dzien);
+  tt:=EncodeTime(hh,nn,ss,0);
+  result:=dt+tt;
 end;
 
 function GetPasswordInConsole(InputMask: char): string;
