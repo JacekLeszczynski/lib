@@ -67,6 +67,8 @@ function IntToBin(liczba:qword):string;
 function IntToSys(liczba:qword;baza:integer):string;
 function IntToSys(liczba:longword;baza:integer):string;
 function IntToSys3(liczba:qword):string;
+function IntToB256(liczba:longword; var buffer; size: integer):integer;
+function B256ToInt(const buffer; size: integer):integer;
 { ----------------------- KOD OPERACJI BITOWYCH ------------------ }
 function BitIndexToNumber(aIndex: integer): integer;
 function GetBit(aLiczba,aBitIndex: integer): boolean;
@@ -154,6 +156,7 @@ function GetPasswordInConsole(InputMask: char = '*'): string;
 function HexToDec(Str: string): Integer;
 function HexToStr(AHexText:string):string;
 function StrToHex(str:string):string;
+function NormalizeB(aFormat: string; aWielkoscBajtowa: int64): string;
 
 { -------------------- MEDICINE CODE --------------------------- }
 function OMDateToTPDate(om_data: TDate; var tydzien,dzien_cyklu: integer; roznica_czasu: TDateTime = 0):TDate;
@@ -622,6 +625,10 @@ begin
   result:=wynik;
 end;
 
+type
+  TTBuffer256 = array [0..255] of char;
+  PPBuffer256 = ^TTBuffer256;
+
 function IntToSys3(liczba: qword): string;
 var
   wynik: string;
@@ -636,6 +643,52 @@ begin
     n:=n div 3;
   until n=0;
   result:=wynik;
+end;
+
+function IntToB256(liczba: longword; var buffer; size: integer): integer;
+var
+  p: PPBuffer256;
+  l,i,j: integer;
+  n,pom: longword;
+begin
+  l:=0;
+  p:=@buffer;
+  n:=liczba;
+  repeat
+    if l+1>size then
+    begin
+      result:=-1;
+      exit;
+    end;
+    for i:=l downto 1 do p^[i]:=p^[i-1]; //przesunięcie o jeden bajt w prawo
+    pom:=n mod 256;
+    p^[0]:=chr(pom);
+    n:=n div 256;
+    inc(l);
+  until n=0;
+  for i:=1 to size-l do
+  begin
+    for j:=size downto 1 do p^[j]:=p^[j-1]; //przesunięcie o jeden bajt w prawo
+    p^[0]:=#0;
+  end;
+  result:=l;
+end;
+
+function B256ToInt(const buffer; size: integer): integer;
+var
+  p: PPBuffer256;
+  i, M: Integer;
+  b: byte;
+begin
+  p:=@buffer;
+  Result:=0;
+  M:=1;
+  for i:=size-1 downto 0 do
+  begin
+    b:=ord(p^[i]);
+    Result:=Result+b*M;
+    M:=M shl 8;
+  end;
 end;
 
 { ----------------------- KOD OPERACJI BITOWYCH ------------------ }
@@ -1854,6 +1907,14 @@ begin
   res:='';
   for i:=1 to length(str) do res:=res+IntToHex(ord(str[i]),2);
   result:=res;
+end;
+
+function NormalizeB(aFormat: string; aWielkoscBajtowa: int64): string;
+begin
+  if aWielkoscBajtowa<1000 then result:=FormatFloat(aFormat,aWielkoscBajtowa)+' B' else
+  if aWielkoscBajtowa<1024000 then result:=FormatFloat(aFormat,aWielkoscBajtowa/1024)+' KB' else
+  if aWielkoscBajtowa<1048576000 then result:=FormatFloat(aFormat,aWielkoscBajtowa/1024/1024)+' MB' else
+  result:=FormatFloat(aFormat,aWielkoscBajtowa/1024/1024/1024)+' GB';
 end;
 
 {$IFDEF UNIX}
