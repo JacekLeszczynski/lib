@@ -1397,6 +1397,7 @@ begin
   s:=StringReplace(s,'&#281;','ę',[rfReplaceAll]);
   s:=StringReplace(s,'&#211;','Ó',[rfReplaceAll]);
   s:=StringReplace(s,'&#243;','ó',[rfReplaceAll]);
+  s:=StringReplace(s,'&oacute;','ó',[rfReplaceAll]);
   s:=StringReplace(s,'&#262;','Ć',[rfReplaceAll]);
   s:=StringReplace(s,'&#263;','ć',[rfReplaceAll]);
   s:=StringReplace(s,'&#321;','Ł',[rfReplaceAll]);
@@ -1411,7 +1412,14 @@ begin
   s:=StringReplace(s,'&#380;','ż',[rfReplaceAll]);
   s:=StringReplace(s,'&laquo;','«',[rfReplaceAll]);
   s:=StringReplace(s,'&raquo;','»',[rfReplaceAll]);
+  s:=StringReplace(s,'&rsquo;','’',[rfReplaceAll]);
+  s:=StringReplace(s,'&#x2019;','’',[rfReplaceAll]);
+  s:=StringReplace(s,'&#8217;','’',[rfReplaceAll]);
+  s:=StringReplace(s,'&apos;','''',[rfReplaceAll]);
+  s:=StringReplace(s,'&#x27;','''',[rfReplaceAll]);
   s:=StringReplace(s,'&#39;','''',[rfReplaceAll]);
+  s:=StringReplace(s,'&aacute;','á',[rfReplaceAll]);
+  s:=StringReplace(s,'&ntilde;','ñ',[rfReplaceAll]);
   result:=s;
 end;
 
