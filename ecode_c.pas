@@ -1,4 +1,4 @@
-unit eCode;
+unit eCode_C;
 
 {$IFNDEF FPC AND $IFDEF MSWINDOWS}
   {$DEFINE DELPHI}
@@ -44,6 +44,12 @@ var
   DefConv: string;
   DefConvOff: boolean;
   TextSeparator: char;
+
+var
+  global_p: pchar;
+
+function fGetLineToStr(aStr: Pchar; l: integer; separator: char; wynik: pchar; var wartosc: pchar): integer; cdecl; external 'libecode.so';
+function fGetLineToStr2(aStr: Pchar; l: integer; separator: char; wynik: pchar; var wartosc: pchar): integer; cdecl; external 'libecode.so';
 
 function GetBitness:string;
 procedure GetLocaleDefault(var Lang, FallbackLang: string);
@@ -105,7 +111,7 @@ function TrimDepth(s:string;c:char=' '):string;
 function kropka(str:string;b:boolean=false;usuwac_spacje:boolean=false):string;
 function StringToDate(str:string):TDateTime;
 procedure BinaryToStrings(var vTab:TStrings; Tab:array of byte);
-function GetLineToStr(const S: string; N: Integer; const Delims: Char; const wynik: string = ''): string;
+function GetLineToStr(s:string;l:integer;separator:char;wynik:string=''):string;
 function GetLineCount(s: string; separator:char):integer;
 function GetKeyFromStr(s:string):string;
 function GetIntKeyFromStr(s:string):integer;
@@ -1071,32 +1077,12 @@ end;
 //Ewentualnie zwraca wynik, jeśli string będzie pusty, gdy oczywiście się go wypełni!
 //Funkcja korzysta z TextSeparator, który można ustawić, wszystkie separatory między
 //kolejnymi takimi znakami, są pomijane!
-function GetLineToStr(const S: string; N: Integer; const Delims: Char;
-  const wynik: string): string;
+function GetLineToStr(s:string;l:integer;separator:char;wynik:string=''):string;
 var
-  cc: boolean = false;
-  w,i,l,len: SizeInt;
+  len: integer;
 begin
-  w:=0;
-  i:=1;
-  l:=0;
-  len:=Length(S);
-  SetLength(Result, 0);
-  while (i<=len) and (w<>N) do
-  begin
-    if s[i] = '"' then cc:=not cc;
-    if (s[i] = Delims) and (not cc) then inc(w) else
-    begin
-      if (N-1)=w then
-      begin
-        inc(l);
-        SetLength(Result,l);
-        Result[L]:=S[i];
-      end;
-    end;
-    inc(i);
-  end;
-  if result='' then result:=wynik;
+  len:=fGetLineToStr(pchar(s),l,separator,pchar(wynik),&global_p);
+  SetString(result,global_p,len);
 end;
 
 function GetLineCount(s: string; separator:char):integer;
@@ -2761,9 +2747,12 @@ end.
 
 }
 
-begin
+initialization
+  global_p:=nil;
   SetDefEof;
   DefConv:='cp1250';
   DefConvOff:=false;
   TextSeparator:='"';
+finalization
+  StrDispose(global_p);
 end.
