@@ -33,10 +33,25 @@ Uwagi:
 interface
 
 uses
-  Classes, Types;
+  Classes, Types, DynLibs;
 
 type
   fchar = file;
+
+  { TEcodeClass }
+
+  TEcodeClass_fGetLineToStr = function (aStr: Pchar; l: integer; separator: char; wynik: pchar; var wartosc: pchar): integer; cdecl;
+  TEcodeClass = class
+  private
+    biblioteka: TLibHandle;
+  public
+    global_p: pchar;
+    fGetLineToStr: TEcodeClass_fGetLineToStr;
+    function LoadLibrary: boolean;
+    procedure UnloadLbrary;
+    procedure Block;
+    procedure Unblock;
+  end;
 
 var
   _eof: string[2];
@@ -212,6 +227,8 @@ type
 {$ENDIF}
 
 var
+  XXX: TEcodeClass = nil;
+  XXX_OLD: TEcodeClass = nil;
   ConfigLocalDirectory: string = '';
   ConfigGlobalDirectory: string = '';
   MyDirectory: string = '';
@@ -1077,26 +1094,32 @@ var
   cc: boolean = false;
   w,i,l,len: SizeInt;
 begin
-  w:=0;
-  i:=1;
-  l:=0;
-  len:=Length(S);
-  SetLength(Result, 0);
-  while (i<=len) and (w<>N) do
+  if XXX=nil then
   begin
-    if s[i] = '"' then cc:=not cc;
-    if (s[i] = Delims) and (not cc) then inc(w) else
+    w:=0;
+    i:=1;
+    l:=0;
+    len:=Length(S);
+    SetLength(Result, 0);
+    while (i<=len) and (w<>N) do
     begin
-      if (N-1)=w then
+      if s[i] = '"' then cc:=not cc;
+      if (s[i] = Delims) and (not cc) then inc(w) else
       begin
-        inc(l);
-        SetLength(Result,l);
-        Result[L]:=S[i];
+        if (N-1)=w then
+        begin
+          inc(l);
+          SetLength(Result,l);
+          Result[L]:=S[i];
+        end;
       end;
+      inc(i);
     end;
-    inc(i);
+    if result='' then result:=wynik;
+  end else begin
+    len:=XXX.fGetLineToStr(pchar(S),N,Delims,pchar(wynik),XXX.&global_p);
+    SetString(result,XXX.global_p,len);
   end;
-  if result='' then result:=wynik;
 end;
 
 function GetLineCount(s: string; separator:char):integer;
@@ -1146,11 +1169,17 @@ end;
 function MyDir(Filename: string; AddingExeExtension: boolean): string;
 var
   s,s2: string;
+  l: integer;
 begin
   if MyDirectory='' then
   begin
-    s:=ExtractFilePath(ParamStr(0));
-    delete(s,length(s),1);
+    if pos('!',Filename)=1 then
+    begin
+      s:=ExtractFilePath(ParamStr(0));
+      delete(s,1,1);
+    end else s:=GetCurrentDir;
+    l:=length(s);
+    if s[l]=_FF then delete(s,l,1);
   end else s:=MyDirectory;
   {$IFDEF WINDOWS}
   if AddingExeExtension then s2:='.exe' else s2:='';
@@ -2669,6 +2698,47 @@ procedure Rewind(var f:fchar);
 begin
   seek(f,0);
 end;
+
+{ TEcodeClass }
+
+function TEcodeClass.LoadLibrary: boolean;
+begin
+  global_p:=nil;
+  biblioteka:=dynlibs.LoadLibrary('libecode.so');
+  if biblioteka=0 then
+  begin
+    result:=false;
+    exit;
+  end;
+  fGetLineToStr:=TEcodeClass_fGetLineToStr(GetProcedureAddress(biblioteka,'fGetLineToStr'));
+  if not assigned(fGetLineToStr) then
+  begin
+    result:=false;
+    FreeLibrary(biblioteka);
+    exit;
+  end;
+  XXX:=self;
+  result:=true;
+end;
+
+procedure TEcodeClass.UnloadLbrary;
+begin
+  StrDispose(global_p);
+  FreeLibrary(biblioteka);
+  XXX:=nil;
+end;
+
+procedure TEcodeClass.Block;
+begin
+  XXX_OLD:=XXX;
+  XXX:=nil;
+end;
+
+procedure TEcodeClass.Unblock;
+begin
+  XXX:=XXX_OLD;
+end;
+
 { -------------------------------------------------------------- }
 
 {
@@ -2761,9 +2831,12 @@ end.
 
 }
 
-begin
+initialization
+  XXX:=nil;
+  XXX_OLD:=nil;
   SetDefEof;
   DefConv:='cp1250';
   DefConvOff:=false;
   TextSeparator:='"';
+finalization
 end.
