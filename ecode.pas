@@ -386,10 +386,12 @@ end;
 
 function EncryptStr(text, key: string): string;
 var
-  s: string;
+  s1,s2: string;
   p: pchar;
 begin
-  p:=fEncryptStr(pchar(text),pchar(key));
+  s1:=text;
+  s2:=key;
+  p:=fEncryptStr(pchar(s1),pchar(s2));
   try
     result:=StrPas(p);
   finally
